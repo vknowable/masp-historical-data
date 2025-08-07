@@ -62,11 +62,13 @@ def main():
     if latest_epoch is not None:
         print(f"Latest MASP epoch found: {latest_epoch}")
         print(f"Next MASP epoch to fetch: {latest_epoch + 1}")
-        # Print the value that can be used in GitHub Actions (newer syntax)
-        print(f"next_masp_epoch={latest_epoch + 1} >> $GITHUB_OUTPUT")
+        # Set output for GitHub Actions
+        with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as f:
+            f.write(f"next_masp_epoch={latest_epoch + 1}\n")
     else:
         print("No MASP epoch data found")
-        print("next_masp_epoch=0 >> $GITHUB_OUTPUT")
+        with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as f:
+            f.write("next_masp_epoch=0\n")
 
 if __name__ == "__main__":
     main() 

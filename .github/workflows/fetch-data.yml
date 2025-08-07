@@ -23,15 +23,17 @@ jobs:
       run: |
         pip install -r requirements.txt
         
-    - name: Find latest MASP epoch
-      id: find-epoch
+    - name: Find latest MASP epoch and fetch new data
       run: |
-        python scripts/find_latest_masp_epoch.py
+        # Find the latest MASP epoch
+        LATEST_EPOCH=$(python scripts/find_latest_masp_epoch.py 2>/dev/null | grep "Next MASP epoch to fetch:" | cut -d: -f2 | tr -d ' ')
         
-    - name: Fetch new data
-      run: |
-        echo "Fetching data starting from MASP epoch: ${{ steps.find-epoch.outputs.next_masp_epoch }}"
-        python scripts/fetch_data.py --end-masp-epoch ${{ steps.find-epoch.outputs.next_masp_epoch }}
+        if [ -z "$LATEST_EPOCH" ]; then
+          LATEST_EPOCH=0
+        fi
+        
+        echo "Fetching data starting from MASP epoch: $LATEST_EPOCH"
+        python scripts/fetch_data.py --end-masp-epoch $LATEST_EPOCH
         
     - name: Commit and push changes
       run: |
