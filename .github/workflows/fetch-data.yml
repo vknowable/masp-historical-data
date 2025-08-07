@@ -2,8 +2,8 @@ name: Fetch MASP Historical Data
 
 on:
   schedule:
-    # Run daily at 2 AM UTC
-    - cron: '0 2 * * *'
+    # Run weekly on Monday at 2 AM UTC
+    - cron: '0 2 * * 1'
   workflow_dispatch: # Allow manual triggering
 
 jobs:
