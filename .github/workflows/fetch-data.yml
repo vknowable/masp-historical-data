@@ -1,0 +1,42 @@
+name: Fetch MASP Historical Data
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  fetch-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        
+    - name: Find latest MASP epoch
+      id: find-epoch
+      run: |
+        python scripts/find_latest_masp_epoch.py
+        
+    - name: Fetch new data
+      run: |
+        echo "Fetching data starting from MASP epoch: ${{ steps.find-epoch.outputs.next_masp_epoch }}"
+        python scripts/fetch_data.py --end-masp-epoch ${{ steps.find-epoch.outputs.next_masp_epoch }}
+        
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add csv/
+        git diff --quiet && git diff --staged --quiet || git commit -m "Update MASP historical data"
+        git push 
