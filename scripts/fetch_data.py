@@ -110,11 +110,6 @@ def do_historical_queries(start_height: int, end_height: int, end_masp_epoch: Op
             result = query_at_height(current_height, token_addresses)
             
             if result and result[2] not in seen_masp_epochs:  # result[2] is masp_epoch
-                # Check if we've reached the end MASP epoch
-                if end_masp_epoch is not None and result[2] <= end_masp_epoch:
-                    print(f"✓ Reached end MASP epoch {end_masp_epoch}, stopping data collection")
-                    break
-                
                 # Write base row
                 base_row = {
                     'height': result[0],
@@ -133,6 +128,11 @@ def do_historical_queries(start_height: int, end_height: int, end_masp_epoch: Op
                 seen_masp_epochs.add(result[2])
                 queried_heights.append(current_height)
                 print(f"✓ Data written for height {current_height}, MASP epoch {result[2]}")
+                
+                # Check if we've reached the end MASP epoch
+                if end_masp_epoch is not None and result[2] <= end_masp_epoch:
+                    print(f"✓ Reached end MASP epoch {end_masp_epoch}, stopping data collection")
+                    break
             else:
                 print(f"⚠ Skipped height {current_height} (duplicate MASP epoch or no data)")
                 
